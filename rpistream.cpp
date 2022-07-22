@@ -1,52 +1,45 @@
-#include "opencv2/opencv.hpp"
-#include <opencv2/core/mat.hpp>
 #include <iostream>
-#include <sys/socket.h> 
-#include <arpa/inet.h>
-#include <sys/ioctl.h>
-#include <net/if.h>
-#include <unistd.h> 
-#include <string.h>
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
 using namespace cv;
+using namespace std;
 
-int capDev = 0;
+int main()
+{
+  Mat frame; 
 
-    cv::VideoCapture cap(capDev); // open the default camera
-    
-int main(int argc, char** argv)
-{   
-    //OpenCV Code
-    //----------------------------------------------------------
+  // initialize video capture
+  VideoCapture cap;
+  int deviceID = CAP_V4L2;        // 0 = open default camera
+  int apiID = cv::CAP_ANY; // 0 = autodetect default API
+  int width = 640;
+  int height = 480;
 
-    Mat img, imgGray;
-    img = Mat::zeros(480 , 640, CV_8UC1);   
-     //make it continuous
-    if (!img.isContinuous()) {
-        img = img.clone();
+  cap.set(CAP_PROP_FRAME_WIDTH, width);
+  cap.set(CAP_PROP_FRAME_HEIGHT, height);
+
+  cap.open(deviceID, apiID);
+  // check if succeeded in opening camera
+  if (!cap.isOpened()) {
+    cerr << "ERROR! Unable to open camera\n";
+    return -1;
+  }
+  cout << "Hello I think the camera turned ON!\n"; 
+  cout << "Start grabbing, press any key to terminate\n";
+
+  for (;;)
+  {
+    cap.read(frame);
+
+    if (frame.empty()) {
+      cerr << "ERROR! Blank frame grabbed.\n";
+      break;
     }
-
-    int imgSize = img.total() * img.elemSize();
-    int bytes = 0;
-    int key;
-    
-
-    //make img continuos
-    if ( ! img.isContinuous() ) { 
-          img = img.clone();
-          imgGray = img.clone();
-    }
-        
-    std::cout << "Image Size:" << imgSize << std::endl;
-
-    while(1) {
-                
-            /* get a frame from camera */
-                cap >> img;
-            
-                //do video processing here 
-                cvtColor(img, imgGray, cv::COLOR_BGR2GRAY);
-
-    }
-
+   
+    imshow("Live", frame);
+    if (waitKey(5) >= 0) break;
+  }
+  return 0;
 }
