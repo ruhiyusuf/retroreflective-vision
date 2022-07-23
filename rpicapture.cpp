@@ -10,16 +10,28 @@
 #include <opencv2/highgui.hpp>
 #include <iostream>
 #include <stdio.h>
+#include <signal.h>
 
 using namespace cv;
 using namespace std;
+
+VideoCapture cap;
+
+// Define the function to be called when ctrl-c (SIGINT) is sent to process
+void signal_callback_handler (int signum) {
+   cout << "Caught signal " << signum << endl;
+   cap.release(); 
+   exit(signum);
+}
 
 int main(int, char**)
 {
     Mat src;
 
+		// Register signal and signal handler
+		signal(SIGINT, signal_callback_handler);
+
     // initialize video capture
-    VideoCapture cap;
     // int deviceID = 0; // 0 = open default camera
     int deviceID = CAP_V4L2; // 0 = open default camera
     // int width = 640;
@@ -58,10 +70,10 @@ int main(int, char**)
     VideoWriter writer;
 		double fps = 30; // frame rate of created video stream
     int codec = VideoWriter::fourcc('M', 'J', 'P', 'G');
-    string filename = "live_video.avi"; // name of the output video file
+    string filename = "./live_video.avi"; // name of the output video file
 
 		cout << "About to open VideoWriter stream!" << endl;
-    writer.open(filename, CAP_GSTREAMER, codec, fps, src.size(), isColor);
+    writer.open(filename, codec, fps, src.size(), isColor);
     // writer.open(filename, CAP_FFMPEG, codec, fps, src.size(), isColor);
 		cout << "Write is open!" << endl;
     // check if we succeeded
@@ -75,8 +87,8 @@ int main(int, char**)
     //--- GRAB AND WRITE LOOP
     cout << "Writing videofile: " << filename << endl
          << "Press any key to terminate" << endl;
-    for (;;)
-    {
+
+		while(true) {
         // check if we succeeded
         if (!cap.read(src)) {
             cerr << "ERROR! blank frame grabbed\n";
@@ -84,11 +96,14 @@ int main(int, char**)
         }
         // encode the frame into the videofile stream
         writer.write(src);
+
         // show live and wait for a key with timeout long enough to show images
-        imshow("Live", src);
-        if (waitKey(5) >= 0)
-            break;
+        // imshow("Live", src);
+
+				if (waitKey(5) > 0) break;
     }
+
     // the videofile will be closed and released automatically in VideoWriter destructor
+    cap.release(); 
     return 0;
 }
