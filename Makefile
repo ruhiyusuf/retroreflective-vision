@@ -1,8 +1,7 @@
 CXX=g++ 
 RM=rm
-INCLUDE_DIR="/usr/local/include/opencv4"
-CXXFLAGS=-I $(INCLUDE_DIR)
-LIBS = -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_videoio
+CXXFLAGS=`pkg-config --cflags opencv4`
+LIBS=`pkg-config --libs opencv4`
 
 SOURCES=$(wildcard *.cpp)
 OBJECTS=$(SOURCES:.cpp=.o)

@@ -20,15 +20,16 @@ int main(int, char**)
 
     // initialize video capture
     VideoCapture cap;
+    // int deviceID = 0; // 0 = open default camera
     int deviceID = CAP_V4L2; // 0 = open default camera
-    int apiID = CAP_ANY; // 0 = autodetect default API
-    int width = 640;
-    int height = 480;  
+    // int width = 640;
+    // int height = 480;  
 
-    cap.set(CAP_PROP_FRAME_WIDTH, width);
-    cap.set(CAP_PROP_FRAME_HEIGHT, height);
+    // cap.set(CAP_PROP_FRAME_WIDTH, width);
+    // cap.set(CAP_PROP_FRAME_HEIGHT, height);
 
-    cap.open(deviceID, apiID);
+    // cap.open(deviceID, apiID);
+    cap.open(deviceID);
 
 		// check if we succeeded
     if (!cap.isOpened()) {
@@ -56,12 +57,12 @@ int main(int, char**)
     //--- INITIALIZE VIDEOWRITER
     VideoWriter writer;
 		double fps = 30; // frame rate of created video stream
-    int codec = VideoWriter::fourcc('H', '2', '6', '4');
-    string filename = "live_video.h264"; // name of the output video file
+    int codec = VideoWriter::fourcc('M', 'J', 'P', 'G');
+    string filename = "live_video.avi"; // name of the output video file
 
 		cout << "About to open VideoWriter stream!" << endl;
-    writer.open(filename, codec, fps, src.size(), isColor);
-    // writer.open(filename, codec, fps, src.size(), isColor);
+    writer.open(filename, CAP_GSTREAMER, codec, fps, src.size(), isColor);
+    // writer.open(filename, CAP_FFMPEG, codec, fps, src.size(), isColor);
 		cout << "Write is open!" << endl;
     // check if we succeeded
     if (!writer.isOpened()) {
