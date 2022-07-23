@@ -17,13 +17,27 @@ using namespace std;
 int main(int, char**)
 {
     Mat src;
-    // use default camera as video source
-    VideoCapture cap(0);
-    // check if we succeeded
+
+    // initialize video capture
+    VideoCapture cap;
+    int deviceID = CAP_V4L2; // 0 = open default camera
+    int apiID = CAP_ANY; // 0 = autodetect default API
+    int width = 640;
+    int height = 480;  
+
+    cap.set(CAP_PROP_FRAME_WIDTH, width);
+    cap.set(CAP_PROP_FRAME_HEIGHT, height);
+
+    cap.open(deviceID, apiID);
+
+		// check if we succeeded
     if (!cap.isOpened()) {
         cerr << "ERROR! Unable to open camera\n";
         return -1;
     }
+
+		cout << "We succeeded in opening the camera!" << endl;
+
     // get one frame from camera to know frame size and type
     cap >> src;
     // check if we succeeded
@@ -31,19 +45,31 @@ int main(int, char**)
         cerr << "ERROR! blank frame grabbed\n";
         return -1;
     }
+
     bool isColor = (src.type() == CV_8UC3);
+
+		cout << "We grabbed a frame from the camera!" << endl;
+
+		cout << "isColor: " << isColor << endl;
+		cout << "src.size(): " << src.size() << endl;
 
     //--- INITIALIZE VIDEOWRITER
     VideoWriter writer;
-    int codec = VideoWriter::fourcc('M', 'J', 'P', 'G');  // select desired codec (must be available at runtime)
-    double fps = 25.0;                          // framerate of the created video stream
-    string filename = "./live.avi";             // name of the output video file
+		double fps = 30; // frame rate of created video stream
+    int codec = VideoWriter::fourcc('H', '2', '6', '4');
+    string filename = "live_video.h264"; // name of the output video file
+
+		cout << "About to open VideoWriter stream!" << endl;
     writer.open(filename, codec, fps, src.size(), isColor);
+    // writer.open(filename, codec, fps, src.size(), isColor);
+		cout << "Write is open!" << endl;
     // check if we succeeded
     if (!writer.isOpened()) {
         cerr << "Could not open the output video file for write\n";
         return -1;
     }
+
+		cout << "We finished initializing video writer!" << endl;
 
     //--- GRAB AND WRITE LOOP
     cout << "Writing videofile: " << filename << endl
