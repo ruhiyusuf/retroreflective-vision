@@ -8,6 +8,7 @@
 #include <opencv2/core.hpp>
 #include <opencv2/videoio.hpp>
 #include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
 #include <iostream>
 #include <stdio.h>
 #include <signal.h>
@@ -70,7 +71,7 @@ int main(int, char**)
     VideoWriter writer;
 		double fps = 30; // frame rate of created video stream
     int codec = VideoWriter::fourcc('M', 'J', 'P', 'G');
-    string filename = "./live_video.avi"; // name of the output video file
+		string filename = "./live_video.avi"; // name of the output video file
 
 		cout << "About to open VideoWriter stream!" << endl;
     writer.open(filename, codec, fps, src.size(), isColor);
@@ -94,6 +95,11 @@ int main(int, char**)
             cerr << "ERROR! blank frame grabbed\n";
             break;
         }
+								
+			  Mat bwframe;	
+				// cv::cvtColor(src, bwframe, cv::COLOR_BGR2GRAY);
+				cv::cvtColor(src, src, cv::COLOR_RGB2GRAY);
+				// cv::hal::cvtBGRtoGray(src, bwframe);
         // encode the frame into the videofile stream
         writer.write(src);
 
