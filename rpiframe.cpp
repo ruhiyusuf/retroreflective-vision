@@ -19,8 +19,9 @@ void signal_callback_handler (int signum) {
 
 int main(int, char**)
 {
-	Mat src, bwframe, hsvframe;
+	Mat src, bwframe, hsvframe, hsvframe_threshold;
 	int counter;
+
 	// Register signal and signal handler
 	signal(SIGINT, signal_callback_handler);
 
@@ -79,6 +80,11 @@ int main(int, char**)
 		// writing hsv image
 		cv::cvtColor(src, hsvframe, cv::COLOR_BGR2HSV);
 		cv::imwrite("./live_hsvframe" + to_string(counter) + ".jpg", hsvframe);
+
+		inRange(hsvframe, Scalar(40, 175, 20), Scalar(70, 255, 255), \
+			hsvframe_threshold);
+		cv::imwrite("./live_hsvframe_threshold" + to_string(counter) + ".jpg", \
+			hsvframe_threshold);
 
 		// show live and wait for a key with timeout long enough to show images
 		// imshow("Live", src);
