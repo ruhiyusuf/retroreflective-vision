@@ -9,6 +9,7 @@
 #include <opencv2/videoio.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 #include <iostream>
 #include <stdio.h>
 #include <signal.h>
@@ -79,7 +80,7 @@ int main(int, char**)
         }
 	cout << "writing to file" << endl;
 	cap >> src;
-	// encode the frame into the videofile stream
+	cv::cvtColor(src, src, cv::COLOR_RGB2GRAY);
         cv::imwrite("./live_frame.jpg", src);
 
         // show live and wait for a key with timeout long enough to show images
