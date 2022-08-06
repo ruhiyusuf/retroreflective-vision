@@ -1,6 +1,7 @@
 /*.o
 /rpistream
 /rpicapture
+/rpiframe
 /*.avi
 /*.jpg
 /*.bmp
