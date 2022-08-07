@@ -26,7 +26,7 @@ int main(int, char**)
 	signal(SIGINT, signal_callback_handler);
 
   // initialize video capture
-  int deviceID = CAP_V4L2; // 0 = open default camera
+  int deviceID = 0; // 0 = open default camera
   // int width = 640;
   // int height = 480;  
 
@@ -87,7 +87,7 @@ int main(int, char**)
 			hsvframe_threshold);
 
 		// show live and wait for a key with timeout long enough to show images
-		// imshow("Live", src);
+		imshow("Live", src);
 		// if (waitKey(5) > 0) break;
 		counter++;
 		if (counter % 5 == 0) counter = 0;

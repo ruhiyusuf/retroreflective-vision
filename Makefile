@@ -1,7 +1,13 @@
 CXX=g++ 
 RM=rm
-CXXFLAGS=`pkg-config --cflags opencv4`
-LIBS=`pkg-config --libs opencv4`
+
+# flags
+CXXFLAGS	:=-std=c++11
+LIBS		:=-lstdc++
+
+# opencv flags
+CXXFLAGS	+=`pkg-config --cflags opencv4`
+LIBS		+=`pkg-config --libs opencv4`
 
 SOURCES=$(wildcard *.cpp)
 OBJECTS=$(SOURCES:.cpp=.o)
