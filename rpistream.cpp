@@ -6,6 +6,52 @@
 using namespace cv;
 using namespace std;
 
+const String window_name_src = "Original Capture";
+const String window_name_trackbar = "HSV Values";
+const String window_name_hsvframe = "HSV Capture";
+const String window_name_hsvmask = "HSV Mask";
+
+const int max_value_H = 360/2;
+const int max_value = 255;
+int low_H = 0, low_S = 0, low_V = 0;
+int high_H = max_value_H, high_S = max_value, high_V = max_value;
+
+static void on_low_H_thresh_trackbar(int, void *)
+{
+    low_H = min(high_H-1, low_H);
+    setTrackbarPos("Low H", window_name_trackbar, low_H);
+}
+
+static void on_high_H_thresh_trackbar(int, void *)
+{
+    high_H = max(high_H, low_H+1);
+    setTrackbarPos("High H", window_name_trackbar, high_H);
+}
+
+static void on_low_S_thresh_trackbar(int, void *)
+{
+    low_S = min(high_S-1, low_S);
+    setTrackbarPos("Low S", window_name_trackbar, low_S);
+}
+
+static void on_high_S_thresh_trackbar(int, void *)
+{
+    high_S = max(high_S, low_S+1);
+    setTrackbarPos("High S", window_name_trackbar, high_S);
+}
+
+static void on_low_V_thresh_trackbar(int, void *)
+{
+    low_V = min(high_V-1, low_V);
+    setTrackbarPos("Low V", window_name_trackbar, low_V);
+}
+
+static void on_high_V_thresh_trackbar(int, void *)
+{
+    high_V = max(high_V, low_V+1);
+    setTrackbarPos("High V", window_name_trackbar, high_V);
+}
+
 int main()
 {
 	Mat src, hsv_frame, hsv_mask;
@@ -32,19 +78,17 @@ int main()
   cout << "Hello I think the camera turned ON!\n"; 
   cout << "Start grabbing, press any key to terminate\n";
 
-	namedWindow("Original Image", WINDOW_NORMAL);
-	namedWindow("HSV Frame", WINDOW_NORMAL);
-	namedWindow("HSV Mask", WINDOW_NORMAL);
+	namedWindow(window_name_src, WINDOW_NORMAL);
+	namedWindow(window_name_hsvframe, WINDOW_NORMAL);
+	namedWindow(window_name_hsvmask, WINDOW_NORMAL);
 
-	namedWindow("HSV Values", WINDOW_NORMAL);
-	createTrackbar("Low H",  "HSV Values", 0, 179, nullptr);
-	createTrackbar("Low S",  "HSV Values", 0, 255, nullptr);
-	createTrackbar("Low V",  "HSV Values", 0, 255, nullptr);
-	createTrackbar("High H", "HSV Values", 0, 179, nullptr);
-	createTrackbar("High S", "HSV Values", 0, 255, nullptr);
-	createTrackbar("High V", "HSV Values", 0, 255, nullptr);
-
-	int low_H, low_S, low_V, high_H, high_S, high_V = 0;
+	namedWindow(window_name_trackbar, WINDOW_NORMAL);
+	createTrackbar("Low H",  window_name_trackbar, &low_H,  max_value_H, on_low_H_thresh_trackbar);
+	createTrackbar("High H", window_name_trackbar, &high_H, max_value_H, on_high_H_thresh_trackbar);
+	createTrackbar("Low S",  window_name_trackbar, &low_S,  max_value, on_low_S_thresh_trackbar);
+	createTrackbar("High S", window_name_trackbar, &high_S, max_value, on_high_S_thresh_trackbar);
+	createTrackbar("Low V",  window_name_trackbar, &low_V,  max_value, on_low_V_thresh_trackbar);
+	createTrackbar("High V", window_name_trackbar, &high_V, max_value, on_high_V_thresh_trackbar);
 
   for (;;)
   {
@@ -58,6 +102,7 @@ int main()
     // writing hsv image
     cv::cvtColor(src, hsv_frame, cv::COLOR_RGB2HSV);
 
+		/*
 		low_H = getTrackbarPos("Low H", "HSV Values");
 		low_S = getTrackbarPos("Low S", "HSV Values");
 		low_V = getTrackbarPos("Low V", "HSV Values");
@@ -65,6 +110,7 @@ int main()
 		high_H = getTrackbarPos("High H", "HSV Values");
 		high_S = getTrackbarPos("High S", "HSV Values");
 		high_V = getTrackbarPos("High V", "HSV Values");
+		*/
 
 		// create mask image
     inRange(hsv_frame, Scalar(low_H, low_S, low_V), Scalar(high_H, high_S,
@@ -74,14 +120,23 @@ int main()
 		resize(src, src_resized, Size(down_width, down_height), INTER_LINEAR);	
 		resize(hsv_frame, hsv_frame_resized, Size(down_width, down_height), INTER_LINEAR);	
 		resize(hsv_mask, hsv_mask_resized, Size(down_width, down_height), INTER_LINEAR);	
-		//imshow("src", src);
-		//imshow("hsvframe", hsv_frame);
-		//imshow("mask", hsv_mask);
 		imshow("Original Image", src_resized);
 		imshow("HSV Frame", hsv_frame_resized);
 		imshow("HSV Mask", hsv_mask_resized);
 
-    if (waitKey(5) >= 0) break;
+    // if (waitKey(5) >= 0) break;
+    char key = (char) waitKey(30);
+    if (key == 'q' || key == 27)
+    {
+			cout << "low_h: " << low_H << endl;
+			cout << "low_s: " << low_S << endl;
+			cout << "low_v: " << low_V << endl;
+			cout << "high_h: " << high_H << endl;
+			cout << "high_s: " << high_S << endl;
+			cout << "high_v: " << high_V << endl;
+    	break;
+    }
+
   }
   return 0;
 }
