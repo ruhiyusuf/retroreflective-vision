@@ -26,12 +26,14 @@ int main(int, char**)
 	signal(SIGINT, signal_callback_handler);
 
   // initialize video capture
-  int deviceID = 0; // 0 = open default camera
-  // int width = 640;
-  // int height = 480;  
+  int deviceID = CAP_AVFOUNDATION; // 0 = open default camera
+  int width = 640;
+  int height = 480;  
+  int exposure = -1;  
 
-  // cap.set(CAP_PROP_FRAME_WIDTH, width);
-  // cap.set(CAP_PROP_FRAME_HEIGHT, height);
+  cap.set(CAP_PROP_FRAME_WIDTH, width);
+  cap.set(CAP_PROP_FRAME_HEIGHT, height);
+	cap.set(CAP_PROP_EXPOSURE, exposure);
 
   cap.open(deviceID);
 
@@ -78,7 +80,7 @@ int main(int, char**)
 		cv::imwrite("./live_bwframe" + to_string(counter) + ".jpg", bwframe);
 
 		// writing hsv image
-		cv::cvtColor(src, hsvframe, cv::COLOR_BGR2HSV);
+		cv::cvtColor(src, hsvframe, cv::COLOR_RGB2HSV);
 		cv::imwrite("./live_hsvframe" + to_string(counter) + ".jpg", hsvframe);
 
 		inRange(hsvframe, Scalar(40, 175, 20), Scalar(70, 255, 255), \
@@ -87,7 +89,12 @@ int main(int, char**)
 			hsvframe_threshold);
 
 		// show live and wait for a key with timeout long enough to show images
-		imshow("Live", src);
+		imshow("src", src);
+		imshow("hsvframe", hsvframe);
+		imshow("mask", hsvframe_threshold);
+		waitKey(0);
+		destroyAllWindows();
+		waitKey(1);
 		// if (waitKey(5) > 0) break;
 		counter++;
 		if (counter % 5 == 0) counter = 0;
