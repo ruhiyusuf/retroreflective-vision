@@ -59,7 +59,7 @@ int main()
 
   // initialize video capture
   VideoCapture cap;
-  int deviceID = CAP_AVFOUNDATION;        // 0 = open default camera
+  int deviceID = CAP_V4L2;        // 0 = open default camera
   int apiID = cv::CAP_ANY; // 0 = autodetect default API
   int width = 640; 
   int height = 480;

@@ -22,6 +22,10 @@ int main(int, char**)
 	Mat src, bwframe, hsvframe, hsvframe_threshold;
 	int counter;
 
+	// values derived from rpistream.cpp and adjustments
+	int low_H = 0, low_S = 0, low_V = 130; // min values: (0, 0, 0)
+	int high_H = 180, high_S = 255, high_V = 255; // max values: (180, 255, 255)
+
 	// Register signal and signal handler
 	signal(SIGINT, signal_callback_handler);
 
@@ -85,7 +89,7 @@ int main(int, char**)
 		cv::cvtColor(src, hsvframe, cv::COLOR_BGR2HSV);
 		cv::imwrite("./live_hsvframe" + to_string(counter) + ".jpg", hsvframe);
 
-		inRange(hsvframe, Scalar(0, 0, 46), Scalar(180, 1, 255), \
+		inRange(hsvframe, Scalar(low_H, low_S, low_V), Scalar(high_H, high_S, high_V), \
 			hsvframe_threshold);
 		cv::imwrite("./live_hsvframe_threshold" + to_string(counter) + ".jpg", \
 			hsvframe_threshold);
