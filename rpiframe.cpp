@@ -19,12 +19,14 @@ void signal_callback_handler (int signum) {
 
 int main(int, char**)
 {
-	Mat src, bwframe, hsvframe, hsvframe_threshold;
+	Mat src, bwframe, hsvframe, hsvframe_threshold, contourframe;
 	int counter;
+	vector<vector<Point>> contours;
+	vector<Vec4i> hierarchy;
 
 	// values derived from rpistream.cpp and adjustments
-	int low_H = 0, low_S = 0, low_V = 130; // min values: (0, 0, 0)
-	int high_H = 180, high_S = 255, high_V = 255; // max values: (180, 255, 255)
+	int low_H = 0, low_S = 0, low_V = 238; // min values: (0, 0, 0)
+	int high_H = 152, high_S = 255, high_V = 255; // max values: (180, 255, 255)
 
 	// Register signal and signal handler
 	signal(SIGINT, signal_callback_handler);
@@ -93,6 +95,23 @@ int main(int, char**)
 			hsvframe_threshold);
 		cv::imwrite("./live_hsvframe_threshold" + to_string(counter) + ".jpg", \
 			hsvframe_threshold);
+
+		cv::threshold(hsvframe_threshold, contourframe, 100, 255, THRESH_BINARY);
+		findContours(contourframe, contours, hierarchy, RETR_CCOMP, \
+			CHAIN_APPROX_SIMPLE);
+		// iterate through all the top-level contours,
+    // draw each connected component with its own random color
+
+    for(int i = 0; i < contours.size(); i++)
+    {
+        Scalar color(128, 0, 128);
+        // Scalar color( rand()&255, rand()&255, rand()&255 );
+        drawContours(contourframe, contours, i, color, 4, LINE_8, hierarchy, 0);
+    }
+		
+		// drawContours(contourframe, contours, -1, Scalar(0, 255, 0), 4);
+		cv::imwrite("./live_contourframe" + to_string(counter) + ".jpg", \
+			contourframe);
 
 		// show live and wait for a key with timeout long enough to show images
 		// imshow("Live", src);
