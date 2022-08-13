@@ -27,11 +27,15 @@ int main(int, char**)
 
   // initialize video capture
   int deviceID = CAP_V4L2; // 0 = open default camera
-  // int width = 640;
-  // int height = 480;  
+  int width = 1920;
+  int height = 1080;  
+	int exposure = 1;
 
-  // cap.set(CAP_PROP_FRAME_WIDTH, width);
-  // cap.set(CAP_PROP_FRAME_HEIGHT, height);
+  cap.set(CAP_PROP_FRAME_WIDTH, width);
+  cap.set(CAP_PROP_FRAME_HEIGHT, height);
+	// cap.set(CAP_PROP_AUTO_EXPOSURE, 3); // auto mode
+	// cap.set(CAP_PROP_AUTO_EXPOSURE, 1); // manual mode
+	// cap.set(CAP_PROP_EXPOSURE, exposure); // desired exposure 
 
   cap.open(deviceID);
 
@@ -74,14 +78,14 @@ int main(int, char**)
 		cv::imwrite("./live_src" + to_string(counter) + ".jpg", src);
 
 		// writing black and white image
-		cv::cvtColor(src, bwframe, cv::COLOR_RGB2GRAY);
+		cv::cvtColor(src, bwframe, cv::COLOR_BGR2GRAY);
 		cv::imwrite("./live_bwframe" + to_string(counter) + ".jpg", bwframe);
 
 		// writing hsv image
 		cv::cvtColor(src, hsvframe, cv::COLOR_BGR2HSV);
 		cv::imwrite("./live_hsvframe" + to_string(counter) + ".jpg", hsvframe);
 
-		inRange(hsvframe, Scalar(40, 175, 20), Scalar(70, 255, 255), \
+		inRange(hsvframe, Scalar(0, 0, 46), Scalar(180, 1, 255), \
 			hsvframe_threshold);
 		cv::imwrite("./live_hsvframe_threshold" + to_string(counter) + ".jpg", \
 			hsvframe_threshold);
