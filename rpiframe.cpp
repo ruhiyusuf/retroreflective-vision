@@ -81,36 +81,51 @@ int main(int, char**)
 		cap >> src;
 
 		// writing src image
-		cv::imwrite("./live_src" + to_string(counter) + ".jpg", src);
+		imwrite("./live_src" + to_string(counter) + ".jpg", src);
 
 		// writing black and white image
-		cv::cvtColor(src, bwframe, cv::COLOR_BGR2GRAY);
-		cv::imwrite("./live_bwframe" + to_string(counter) + ".jpg", bwframe);
+		cvtColor(src, bwframe, COLOR_BGR2GRAY);
+		imwrite("./live_bwframe" + to_string(counter) + ".jpg", bwframe);
 
 		// writing hsv image
-		cv::cvtColor(src, hsvframe, cv::COLOR_BGR2HSV);
-		cv::imwrite("./live_hsvframe" + to_string(counter) + ".jpg", hsvframe);
+		cvtColor(src, hsvframe, COLOR_BGR2HSV);
+		imwrite("./live_hsvframe" + to_string(counter) + ".jpg", hsvframe);
 
 		inRange(hsvframe, Scalar(low_H, low_S, low_V), Scalar(high_H, high_S, high_V), \
 			hsvframe_threshold);
-		cv::imwrite("./live_hsvframe_threshold" + to_string(counter) + ".jpg", \
+		imwrite("./live_hsvframe_threshold" + to_string(counter) + ".jpg", \
 			hsvframe_threshold);
 
-		cv::threshold(hsvframe_threshold, contourframe, 100, 255, THRESH_BINARY);
+		threshold(hsvframe_threshold, contourframe, 100, 255, THRESH_BINARY);
 		findContours(contourframe, contours, hierarchy, RETR_CCOMP, \
 			CHAIN_APPROX_SIMPLE);
-		// iterate through all the top-level contours,
-    // draw each connected component with its own random color
 
+		/// Approximate contours to polygons + get bounding rects and circles
+		vector<vector<Point> > contours_poly( contours.size() );
+		vector<Rect> boundRect( contours.size() );
+		vector<Point2f>center( contours.size() );
+		vector<float>radius( contours.size() );
+
+		// iterate through all the top-level contours and find bounding box
+		cout << "calculating bounding box..." << endl;
+		for(int i = 0; i < contours.size(); i++)
+		{ 
+			approxPolyDP( Mat(contours[i]), contours_poly[i], 3, true );
+			boundRect[i] = boundingRect( Mat(contours_poly[i]) );
+			minEnclosingCircle( (Mat)contours_poly[i], center[i], radius[i] );
+    }
+
+		cout << "drawing contours and bounding boxes..." << endl;
     for(int i = 0; i < contours.size(); i++)
     {
-        Scalar color(128, 0, 128);
-        // Scalar color( rand()&255, rand()&255, rand()&255 );
-        drawContours(contourframe, contours, i, color, 4, LINE_8, hierarchy, 0);
+			Scalar color(128, 0, 128);
+			// Scalar color( rand()&255, rand()&255, rand()&255 );
+			drawContours(contourframe, contours, i, color, 4, LINE_8, hierarchy, 0);
+			rectangle(contourframe, boundRect[i].tl(), boundRect[i].br(), color, 2, 8, 0);
+			// circle(drawing, center[i], (int)radius[i], color, 2, 8, 0);
     }
 		
-		// drawContours(contourframe, contours, -1, Scalar(0, 255, 0), 4);
-		cv::imwrite("./live_contourframe" + to_string(counter) + ".jpg", \
+		imwrite("./live_contourframe" + to_string(counter) + ".jpg", \
 			contourframe);
 
 		// show live and wait for a key with timeout long enough to show images
