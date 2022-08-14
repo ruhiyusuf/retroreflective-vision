@@ -19,8 +19,9 @@ void signal_callback_handler (int signum) {
 
 int main(int, char**)
 {
-	Mat src, bwframe, hsvframe, hsvframe_threshold, contourframe;
+	Mat src, bwframe, hsvframe, hsvframe_mask, contourframe;
 	int counter;
+	int area_threshold = 500;
 	vector<vector<Point>> contours;
 	vector<Vec4i> hierarchy;
 
@@ -77,26 +78,22 @@ int main(int, char**)
 			break;
 		}
 	
-		cout << "writing to file" << endl;
+		// capture source image
+		cout << "capturing source image" << endl;
 		cap >> src;
 
-		// writing src image
-		imwrite("./live_src" + to_string(counter) + ".jpg", src);
-
-		// writing black and white image
+		// create black and white image
 		cvtColor(src, bwframe, COLOR_BGR2GRAY);
-		imwrite("./live_bwframe" + to_string(counter) + ".jpg", bwframe);
 
-		// writing hsv image
+		// create hsv image
 		cvtColor(src, hsvframe, COLOR_BGR2HSV);
-		imwrite("./live_hsvframe" + to_string(counter) + ".jpg", hsvframe);
 
+		// create hsv mask
 		inRange(hsvframe, Scalar(low_H, low_S, low_V), Scalar(high_H, high_S, high_V), \
-			hsvframe_threshold);
-		imwrite("./live_hsvframe_threshold" + to_string(counter) + ".jpg", \
-			hsvframe_threshold);
+			hsvframe_mask);
 
-		threshold(hsvframe_threshold, contourframe, 100, 255, THRESH_BINARY);
+		// create contourframe
+		contourframe = hsvframe_mask.clone();
 		findContours(contourframe, contours, hierarchy, RETR_CCOMP, \
 			CHAIN_APPROX_SIMPLE);
 
@@ -118,15 +115,47 @@ int main(int, char**)
 		cout << "drawing contours and bounding boxes..." << endl;
     for(int i = 0; i < contours.size(); i++)
     {
-			Scalar color(128, 0, 128);
-			// Scalar color( rand()&255, rand()&255, rand()&255 );
-			drawContours(contourframe, contours, i, color, 4, LINE_8, hierarchy, 0);
-			rectangle(contourframe, boundRect[i].tl(), boundRect[i].br(), color, 2, 8, 0);
-			// circle(drawing, center[i], (int)radius[i], color, 2, 8, 0);
+			Scalar redcolor(0, 0, 255);
+			Scalar graycolor(64, 64, 255);
+			if (boundRect[i].area() > area_threshold) {
+				// Scalar color( rand()&255, rand()&255, rand()&255 );
+
+				// drawContours(contourframe, contours, i, color, 4, LINE_8, hierarchy, 0);
+				rectangle(contourframe, boundRect[i].tl(), boundRect[i].br(), graycolor, 2, 8, 0);
+				rectangle(src, boundRect[i].tl(), boundRect[i].br(), redcolor, 2, 8, 0);
+
+				// circle(contourframe, center[i], (int)radius[i], color, 2, 8, 0);
+				// drawMarker(contourframe, center[i], color, MARKER_DIAMOND, 8, 3);
+
+				Point brcenter = Point(boundRect[i].x + (boundRect[i].width)/2,
+					boundRect[i].y + (boundRect[i].height)/2);
+				drawMarker(contourframe, brcenter, graycolor, MARKER_STAR, 8, 1);
+				drawMarker(src, brcenter, redcolor, MARKER_STAR, 8, 1);
+
+				cout << "center[" << counter << "][" << i << "]: " << center[i] << ", "; 
+				cout << "area[" << counter << "][" << i << "]: " << boundRect[i].area() << endl;
+			}
     }
-		
-		imwrite("./live_contourframe" + to_string(counter) + ".jpg", \
-			contourframe);
+
+		// write all images to files
+		imwrite("./live_src" + to_string(counter) + ".jpg", src);
+		imwrite("./live_bwframe" + to_string(counter) + ".jpg", bwframe);
+		imwrite("./live_hsvframe" + to_string(counter) + ".jpg", hsvframe);
+		imwrite("./live_hsvframe_mask" + to_string(counter) + ".jpg", hsvframe_mask);
+		imwrite("./live_contourframe" + to_string(counter) + ".jpg", contourframe);
+
+		// reset vectors and mat frame
+		contours_poly.clear();
+		boundRect.clear();
+		center.clear();
+		radius.clear();
+	
+		// release Mat frames
+		src.release();
+		bwframe.release();
+		hsvframe.release();
+		hsvframe_mask.release();
+		contourframe.release();
 
 		// show live and wait for a key with timeout long enough to show images
 		// imshow("Live", src);
