@@ -26,6 +26,7 @@ class UdpClient {
 		// public methods
 		int ReceivePacket();
 		int ReceiveInt();
+		int ReceiveCoords(int &x, int &y);
 };
 
 UdpClient::UdpClient(int port = BCAST_PORT){
@@ -80,14 +81,34 @@ int UdpClient::ReceiveInt(){
 	}
 }
 
+int UdpClient::ReceiveCoords(int &x, int &y) {
+	int dataLen = ReceivePacket();
+
+	if (dataLen != -1) {
+		std::string xtoken, ytoken;
+		std::string delimiter = ":";
+		std::string msg = string(receiveData); 
+		xtoken = msg.substr(0, msg.find(delimiter)); 
+		ytoken = msg.erase(0, msg.find(delimiter) + delimiter.length()); 
+		x = atoi(xtoken.c_str()); 
+		y = atoi(ytoken.c_str()); 
+		return dataLen;
+	} else {
+		return -1;
+	}
+
+}
+
 int main() {
-	cout << "Hello" << endl;
+	int msg_len; 
+	int x, y;
+
 	UdpClient *udp_client = new UdpClient();
 
-	int msg_len; 
 	while (true) {
-		msg_len = udp_client->ReceivePacket();
+		msg_len = udp_client->ReceiveCoords(x, y);
 		cout << "msg_len: " << msg_len << endl;
+		cout << "x: " << x << " y: " << y << endl;
 	}
 
 	return 0;

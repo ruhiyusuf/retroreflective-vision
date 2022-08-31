@@ -13,7 +13,7 @@ using namespace cv;
 using namespace std;
 
 #define PORT		5800
-#define MAXLINE 8 // stores [x, y] pixels as [x, x, x, x, y, y, y, y]         
+#define MAXLINE 8 
 
 VideoCapture cap;
 
@@ -55,6 +55,12 @@ static int init_socket() {
 	return sockfd;
 }
 
+std::string create_message(int x, int y) {
+	std::string msg;
+	msg = to_string(x) + ":" + to_string(y); 
+	return msg;
+}
+
 int main(int, char**)
 {
 	Mat src, bwframe, hsvframe, hsvframe_mask, contourframe;
@@ -74,7 +80,8 @@ int main(int, char**)
 
 	// check socket; say hello! 
 	cout << "Say hello..." << endl;
-	msg = "Hello!";
+	// msg = "Hello!";
+	msg = create_message(347, 25);
 	broadcast(sockfd, msg.c_str());
 
 	// Register signal and signal handler
