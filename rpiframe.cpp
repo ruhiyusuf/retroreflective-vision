@@ -14,6 +14,7 @@ using namespace std;
 
 #define PORT		5800
 #define MAXLINE 8 
+#define DRAW_BB 1
 
 VideoCapture cap;
 
@@ -64,7 +65,7 @@ std::string create_message(int x, int y) {
 int main(int, char**)
 {
 	Mat src, bwframe, hsvframe, hsvframe_mask, contourframe;
-	int counter;
+	int counter, max_x, max_y;
 	int area_threshold = 500;
 	vector<vector<Point>> contours;
 	vector<Vec4i> hierarchy;
@@ -160,6 +161,8 @@ int main(int, char**)
 		vector<Point2f>center( contours.size() );
 		vector<float>radius( contours.size() );
 
+		max_x, max_y = 0;
+
 		// iterate through all the top-level contours and find bounding box
 		cout << "calculating bounding box..." << endl;
 		for(int i = 0; i < contours.size(); i++)
@@ -175,6 +178,9 @@ int main(int, char**)
 			Scalar redcolor(0, 0, 255);
 			Scalar graycolor(64, 64, 255);
 			if (boundRect[i].area() > area_threshold) {
+				// if (boundingRect[i].area() > max_x * max_y
+				//	max_x, max_y = boundingRect[i].x, boundingRect[i].y;
+
 				// Scalar color( rand()&255, rand()&255, rand()&255 );
 
 				// drawContours(contourframe, contours, i, color, 4, LINE_8, hierarchy, 0);
@@ -193,6 +199,10 @@ int main(int, char**)
 				cout << "area[" << counter << "][" << i << "]: " << boundRect[i].area() << endl;
 			}
     }
+
+		// broadcast max_x, max_y
+		msg = create_message(max_x, max_y);
+		broadcast(sockfd, msg.c_str());
 
 		// write all images to files
 		imwrite("./live_src" + to_string(counter) + ".jpg", src);
