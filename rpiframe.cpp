@@ -4,9 +4,16 @@
 #include <iostream>
 #include <stdio.h>
 #include <signal.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
 
 using namespace cv;
 using namespace std;
+
+#define PORT		5800
+#define MAXLINE 8 // stores [x, y] pixels as [x, x, x, x, y, y, y, y]         
 
 VideoCapture cap;
 
@@ -15,6 +22,37 @@ void signal_callback_handler (int signum) {
 	cout << "Caught signal " << signum << endl;
 	cap.release(); 
   exit(signum);
+}
+
+static void broadcast(int socket, const char *mess) {
+	struct sockaddr_in s;
+
+	memset(&s, '\0', sizeof(struct sockaddr_in));
+	s.sin_family = AF_INET;
+	s.sin_port = (in_port_t)htons(PORT);
+	s.sin_addr.s_addr = htonl(INADDR_BROADCAST);
+
+	if(sendto(socket, mess, strlen(mess), 0, (struct sockaddr *)&s, sizeof(struct sockaddr_in)) < 0)
+		perror("sendto");
+}
+
+static int init_socket() {
+	int sockfd;
+
+	// open a socket
+	if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
+		perror("socket creation failed");
+		exit(EXIT_FAILURE);
+	}
+
+	// enable broadcast
+	int broadcastEnable = 1;
+	if(setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST, 
+		&broadcastEnable, sizeof(broadcastEnable)) < 0) {
+		perror("bcast setting failed");
+	}
+
+	return sockfd;
 }
 
 int main(int, char**)
@@ -29,13 +67,23 @@ int main(int, char**)
 	int low_H = 0, low_S = 0, low_V = 238; // min values: (0, 0, 0)
 	int high_H = 152, high_S = 255, high_V = 255; // max values: (180, 255, 255)
 
+	// open UDP socket and enable broadcast
+	int sockfd = init_socket();
+	std::string msg;
+	cout << "Initialized socket!" << endl;
+
+	// check socket; say hello! 
+	cout << "Say hello..." << endl;
+	msg = "Hello!";
+	broadcast(sockfd, msg.c_str());
+
 	// Register signal and signal handler
 	signal(SIGINT, signal_callback_handler);
 
   // initialize video capture
   int deviceID = CAP_V4L2; // 0 = open default camera
-  int width = 1920;
-  int height = 1080;  
+  int width = 640;
+  int height = 480;  
 	int exposure = 1;
 
   cap.set(CAP_PROP_FRAME_WIDTH, width);
@@ -71,6 +119,8 @@ int main(int, char**)
        << "Press any key to terminate" << endl;
 
 	counter = 0;
+
+
   while(true) {
 		// check if we succeeded
     if (!cap.read(src)) {
