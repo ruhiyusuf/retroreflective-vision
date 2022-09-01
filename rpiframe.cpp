@@ -57,8 +57,9 @@ static int init_socket() {
 }
 
 std::string create_message(int x, int y) {
-	std::string msg;
+	std::string msg = "";
 	msg = to_string(x) + ":" + to_string(y); 
+	cout << "THE MESSAGE: " << msg << endl;
 	return msg;
 }
 
@@ -172,16 +173,14 @@ int main(int, char**)
 			minEnclosingCircle( (Mat)contours_poly[i], center[i], radius[i] );
     }
 
+		int max_area = boundRect[0].area();
 		cout << "drawing contours and bounding boxes..." << endl;
     for(int i = 0; i < contours.size(); i++)
     {
 			Scalar redcolor(0, 0, 255);
 			Scalar graycolor(64, 64, 255);
 			if (boundRect[i].area() > area_threshold) {
-				// if (boundingRect[i].area() > max_x * max_y
-				//	max_x, max_y = boundingRect[i].x, boundingRect[i].y;
-
-				// Scalar color( rand()&255, rand()&255, rand()&255 );
+				// if (boundRect[i].area() > (max_x * max_y))
 
 				// drawContours(contourframe, contours, i, color, 4, LINE_8, hierarchy, 0);
 				rectangle(contourframe, boundRect[i].tl(), boundRect[i].br(), graycolor, 2, 8, 0);
@@ -195,8 +194,18 @@ int main(int, char**)
 				drawMarker(contourframe, brcenter, graycolor, MARKER_STAR, 8, 1);
 				drawMarker(src, brcenter, redcolor, MARKER_STAR, 8, 1);
 
+				if (boundRect[i].area() > max_area) {
+					max_area = boundRect[i].area();
+					max_x = (int)brcenter.x;
+					max_y = (int)brcenter.y;
+				}
+				
 				cout << "center[" << counter << "][" << i << "]: " << center[i] << ", "; 
+				cout << "brcenter[" << counter << "][" << i << "]: " << brcenter;
+				cout << "	x: " << brcenter.x << " y: " << brcenter.y << endl;
 				cout << "area[" << counter << "][" << i << "]: " << boundRect[i].area() << endl;
+				cout << "max_x: " << max_x << ", max_y: " << max_y << endl;
+				cout << "max_area: " << max_area << endl;
 			}
     }
 
