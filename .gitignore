@@ -2,6 +2,7 @@
 /rpistream
 /rpicapture
 /rpiframe
+/udp_client
 /*.avi
 /*.jpg
 /*.bmp
