@@ -8,6 +8,8 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <chrono>
+#include <ctime>
 
 using namespace cv;
 using namespace std;
@@ -131,6 +133,8 @@ int main(int, char**)
 
 
   while(true) {
+		// record start time
+		auto start = std::chrono::system_clock::now();
 		// check if we succeeded
     if (!cap.read(src)) {
 			cerr << "ERROR! blank frame grabbed\n";
@@ -212,7 +216,9 @@ int main(int, char**)
 		// broadcast max_x, max_y
 		msg = create_message(max_x, max_y);
 		broadcast(sockfd, msg.c_str());
-
+		auto end = std::chrono::system_clock::now();
+		std::chrono::duration<double> diff = end - start; 
+		cout << diff.count() << endl;
 		// write all images to files
 		imwrite("./live_src" + to_string(counter) + ".jpg", src);
 		imwrite("./live_bwframe" + to_string(counter) + ".jpg", bwframe);
