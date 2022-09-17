@@ -5,6 +5,9 @@ RM=rm
 CXXFLAGS	:=-std=c++11
 LIBS		:=-lstdc++
 
+OPENCV = -I"C:\opencv\build\include" - L"C:\opencv\build\x86\mingw\lib"
+-lopencv_core243 -lopencv_highgui243
+
 # opencv flags
 CXXFLAGS	+=`pkg-config --cflags opencv4`
 LIBS		+=`pkg-config --libs opencv4`
