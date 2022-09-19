@@ -1,10 +1,3 @@
-/**
-  @file videowriter_basic.cpp
-  @brief A very basic sample for using VideoWriter and VideoCapture
-  @author PkLab.net
-  @date Aug 24, 2016
-*/
-
 #include <opencv2/core.hpp>
 #include <opencv2/videoio.hpp>
 #include <opencv2/highgui.hpp>

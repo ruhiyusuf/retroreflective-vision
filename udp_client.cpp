@@ -1,9 +1,7 @@
 #include <stdio.h>
 #include <iostream>
-#include <sys/socket.h>
+#include <Winsock2.h>
 #include <stdlib.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/time.h>
@@ -13,7 +11,7 @@ using namespace std;
 
 #define MAXBUFSIZE 1024
 #define BCAST_PORT 5800
-
+/*
 class UdpClient {
 	public:
 		// public constants and variables
@@ -103,13 +101,13 @@ int main() {
 	int msg_len; 
 	int x, y;
 
-	UdpClient *udp_client = new UdpClient();
+	// UdpClient *udp_client = new UdpClient();
 
 	while (true) {
-		msg_len = udp_client->ReceiveCoords(x, y);
+		// msg_len = udp_client->ReceiveCoords(x, y);
 		cout << "msg_len: " << msg_len << endl;
 		cout << "x: " << x << " y: " << y << endl;
 	}
 
 	return 0;
-}
+}*/
