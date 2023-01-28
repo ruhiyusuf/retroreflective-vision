@@ -65,6 +65,13 @@ std::string create_message(int x, int y) {
 	return msg;
 }
 
+std::string gstreamer_pipeline (int capture_width, int capture_height, int display_width, int display_height, int framerate, int flip_method) {
+    return "nvarguscamerasrc ! video/x-raw(memory:NVMM), width=(int)" + std::to_string(capture_width) + ", height=(int)" +
+           std::to_string(capture_height) + ", framerate=(fraction)" + std::to_string(framerate) +
+           "/1 ! nvvidconv flip-method=" + std::to_string(flip_method) + " ! video/x-raw, width=(int)" + std::to_string(display_width) + ", height=(int)" +
+           std::to_string(display_height) + ", format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink";
+}
+
 int main(int, char**)
 {
 	Mat src, bwframe, hsvframe, hsvframe_mask, contourframe;
@@ -91,19 +98,33 @@ int main(int, char**)
 	// Register signal and signal handler
 	signal(SIGINT, signal_callback_handler);
 
-  // initialize video capture
-  int deviceID = CAP_V4L2; // 0 = open default camera
   int width = 640;
   int height = 480;  
-	int exposure = 1;
+  int exposure = 1;
+  int display_width = 640;
+  int display_height = 480;
+  int framerate = 30 ;
+  int flip_method = 0 ;
 
-  cap.set(CAP_PROP_FRAME_WIDTH, width);
-  cap.set(CAP_PROP_FRAME_HEIGHT, height);
+  std::string pipeline = gstreamer_pipeline(width,
+    height,
+    display_width,
+    display_height,
+    framerate,
+    flip_method);
+  std::cout << "Using pipeline: \n\t" << pipeline << "\n";
+
+  cv::VideoCapture cap(pipeline, cv::CAP_GSTREAMER);
+  // initialize video capture
+//  int deviceID = CAP_V4L2; // 0 = open default camera
+
+ // cap.set(CAP_PROP_FRAME_WIDTH, width);
+//  cap.set(CAP_PROP_FRAME_HEIGHT, height);
 	// cap.set(CAP_PROP_AUTO_EXPOSURE, 3); // auto mode
 	// cap.set(CAP_PROP_AUTO_EXPOSURE, 1); // manual mode
 	// cap.set(CAP_PROP_EXPOSURE, exposure); // desired exposure 
 
-  cap.open(deviceID);
+//  cap.open(deviceID);
 
 	// check if we succeeded
   if (!cap.isOpened()) {
