@@ -51,13 +51,15 @@ static void on_high_V_thresh_trackbar(int, void *)
     high_V = max(high_V, low_V+1);
     setTrackbarPos("High V", window_name_trackbar, high_V);
 }
-
+/*
 std::string gstreamer_pipeline (int capture_width, int capture_height, int display_width, int display_height, int framerate, int flip_method) {
     return "nvarguscamerasrc ! video/x-raw(memory:NVMM), width=(int)" + std::to_string(capture_width) + ", height=(int)" +
            std::to_string(capture_height) + ", framerate=(fraction)" + std::to_string(framerate) +
            "/1 ! nvvidconv flip-method=" + std::to_string(flip_method) + " ! video/x-raw, width=(int)" + std::to_string(display_width) + ", height=(int)" +
            std::to_string(display_height) + ", format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink";
 }
+*/
+
 
 int main()
 {
@@ -65,30 +67,29 @@ int main()
   Mat src_resized, hsv_frame_resized, hsv_mask_resized;
 
   // initialize video capture
-/*
- * VideoCapture cap;
-  int deviceID = CAP_V4L2;        // 0 = open default camera
-  int apiID = cv::CAP_ANY; // 0 = autodetect default API
-*/
+ VideoCapture cap;
+//  int deviceID = CAP_V4L2;        // 0 = open default camera
+  int deviceID = 0;        // 0 = open default camera
+//  int apiID = cv::CAP_ANY; // 0 = autodetect default API
   int width = 640; 
   int height = 480;
   int down_width = 640/2; 
   int down_height = 480/2;
 
-//  cap.set(CAP_PROP_FRAME_WIDTH, width);
-//  cap.set(CAP_PROP_FRAME_HEIGHT, height);
+cap.set(CAP_PROP_FRAME_WIDTH, width);
+cap.set(CAP_PROP_FRAME_HEIGHT, height);
 
- /* int capture_width = 1280 ;
+/*int capture_width = 1280 ;
   int capture_height = 720 ;
   int display_width = 1280 ;
   int display_height = 720 ;
-*/
+
   int display_width = 640;
   int display_height = 480;
   int framerate = 30 ;
   int flip_method = 0 ;
 
-  std::string pipeline = gstreamer_pipeline(width,
+std::string pipeline = gstreamer_pipeline(width,
     height,
     display_width,
     display_height,
@@ -97,7 +98,9 @@ int main()
   std::cout << "Using pipeline: \n\t" << pipeline << "\n";
  
   cv::VideoCapture cap(pipeline, cv::CAP_GSTREAMER);
+  */
   // check if succeeded in opening camera
+  cap.open(deviceID);
   if (!cap.isOpened()) {
     cerr << "ERROR! Unable to open camera\n";
     return -1;
