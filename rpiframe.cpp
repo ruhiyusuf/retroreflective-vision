@@ -81,8 +81,8 @@ int main(int, char**)
 	vector<Vec4i> hierarchy;
 
 	// values derived from rpistream.cpp and adjustments
-	int low_H = 0, low_S = 0, low_V = 238; // min values: (0, 0, 0)
-	int high_H = 152, high_S = 255, high_V = 255; // max values: (180, 255, 255)
+	int low_H = 0, low_S = 254, low_V = 169; // min values: (0, 0, 0)
+	int high_H = 56, high_S = 255, high_V = 255; // max values: (180, 255, 255)
 
 	// open UDP socket and enable broadcast
 	int sockfd = init_socket();
@@ -98,8 +98,8 @@ int main(int, char**)
 	// Register signal and signal handler
 	signal(SIGINT, signal_callback_handler);
 
-  int width = 640;
-  int height = 480;  
+  int width = 320; // 320
+  int height = 240; // 240 
   int exposure = 1;
   int display_width = 640;
   int display_height = 480;
@@ -108,8 +108,8 @@ int main(int, char**)
 
   std::string pipeline = gstreamer_pipeline(width,
     height,
-    display_width,
-    display_height,
+    width,
+    height,
     framerate,
     flip_method);
   std::cout << "Using pipeline: \n\t" << pipeline << "\n";
