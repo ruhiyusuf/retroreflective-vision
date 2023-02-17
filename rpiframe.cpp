@@ -18,12 +18,12 @@ using namespace std;
 #define MAXLINE 8 
 #define DRAW_BB 1
 
-VideoCapture cap;
+//  VideoCapture cap;
 
 // Define the function to be called when ctrl-c (SIGINT) is sent to process
-void signal_callback_handler (int signum) {
+void signal_callback_handler (int signum, VideoCapture * cap) {
 	cout << "Caught signal " << signum << endl;
-	cap.release(); 
+	cap->release(); 
   exit(signum);
 }
 
@@ -96,7 +96,8 @@ int main(int, char**)
 	broadcast(sockfd, msg.c_str());
 
 	// Register signal and signal handler
-	signal(SIGINT, signal_callback_handler);
+	// FIX LATER
+	// signal(SIGINT, &cap, signal_callback_handler);
 
   int width = 320; // 320
   int height = 240; // 240 
@@ -191,17 +192,23 @@ int main(int, char**)
 
 		// iterate through all the top-level contours and find bounding box
 		cout << "calculating bounding box..." << endl;
+		cout << "contours.size() = " << contours.size() << endl;
+
 		for(int i = 0; i < contours.size(); i++)
 		{ 
+					
 			approxPolyDP( Mat(contours[i]), contours_poly[i], 3, true );
 			boundRect[i] = boundingRect( Mat(contours_poly[i]) );
 			minEnclosingCircle( (Mat)contours_poly[i], center[i], radius[i] );
-    }
+    		}
 
-		int max_area = boundRect[0].area();
+		cout << "calling max_area calculations!" << endl;
+		int max_area; 
+		if (contours.size() > 0) max_area = boundRect[0].area();
 		cout << "drawing contours and bounding boxes..." << endl;
-    for(int i = 0; i < contours.size(); i++)
-    {
+
+    		for(int i = 0; i < contours.size(); i++)
+    		{
 			Scalar redcolor(0, 0, 255);
 			Scalar graycolor(64, 64, 255);
 			if (boundRect[i].area() > area_threshold) {
