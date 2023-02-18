@@ -81,8 +81,8 @@ int main(int, char**)
 	vector<Vec4i> hierarchy;
 
 	// values derived from rpistream.cpp and adjustments
-	int low_H = 0, low_S = 254, low_V = 169; // min values: (0, 0, 0)
-	int high_H = 56, high_S = 255, high_V = 255; // max values: (180, 255, 255)
+	int low_H = 21, low_S = 43, low_V = 200; // min values: (0, 0, 0)
+	int high_H = 54, high_S = 255, high_V = 255; // max values: (180, 255, 255)
 
 	// open UDP socket and enable broadcast
 	int sockfd = init_socket();
@@ -171,7 +171,8 @@ int main(int, char**)
 		cvtColor(src, bwframe, COLOR_BGR2GRAY);
 
 		// create hsv image
-		cvtColor(src, hsvframe, COLOR_BGR2HSV);
+		// cvtColor(src, hsvframe, COLOR_BGR2HSV);
+		cvtColor(src, hsvframe, COLOR_RGB2HSV);
 
 		// create hsv mask
 		inRange(hsvframe, Scalar(low_H, low_S, low_V), Scalar(high_H, high_S, high_V), \
