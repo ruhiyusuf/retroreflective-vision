@@ -64,7 +64,7 @@ std::string create_message(int x, int y) {
 	cout << "THE MESSAGE: " << msg << endl;
 	return msg;
 }
-
+/*
 std::string gstreamer_pipeline_writer (int capture_width, int capture_height, int display_width, int display_height, int framerate, int flip_method) {
     return "nvarguscamerasrc ! video/x-raw(memory:NVMM), width=(int)" + std::to_string(capture_width) + ", height=(int)" +
            std::to_string(capture_height) + ", framerate=(fraction)" + std::to_string(framerate) +
@@ -72,7 +72,7 @@ std::string gstreamer_pipeline_writer (int capture_width, int capture_height, in
            std::to_string(display_height) + ", format=(string)BGRx ! \
 					 videoconvert ! video/x-raw, format=(string)BGR !  x264enc \
 					 tune=zerolatency ! h264parse ! rtph264pay ! udpsink \
-					 host=localhost\
+					 host=192.168.1.11\
 					 port=5001";
 }
 
@@ -83,7 +83,7 @@ std::string gstreamer_pipeline_capture (int capture_width, int capture_height, i
            std::to_string(display_height) + ", format=(string)BGRx ! \
 					 videoconvert ! video/x-raw, format=(string)BGR ! appsink";
 }
-
+*/
 int main(int, char**)
 {
 	Mat src, bwframe, hsvframe, hsvframe_mask, contourframe;
@@ -119,7 +119,7 @@ int main(int, char**)
   int framerate = 30 ;
   int flip_method = 0 ;
 
-  std::string capture_pipeline = gstreamer_pipeline_capture(width,
+ /* std::string capture_pipeline = gstreamer_pipeline_capture(width,
     height,
     width,
     height,
@@ -134,10 +134,12 @@ int main(int, char**)
     framerate,
     flip_method);
   std::cout << "Using pipeline: \n\t" << writer_pipeline << "\n";
+*/
 
-
-  cv::VideoCapture cap(capture_pipeline, cv::CAP_GSTREAMER);
-  cv::VideoWriter writ(writer_pipeline, cv::CAP_GSTREAMER, \
+  cv::VideoCapture cap("udp:/localhost:5001", cv::CAP_ANY);
+  // cv::VideoCapture cap("udp://:@5001", cv::CAP_ANY);
+  // cv::VideoCapture cap(capture_pipeline, cv::CAP_GSTREAMER);
+  // cv::VideoWriter writ(writer_pipeline, cv::CAP_GSTREAMER, \
 	framerate,cv::Size(width, height), true);
 
   // initialize video capture
@@ -179,6 +181,12 @@ int main(int, char**)
 
 
   while(true) {
+    if (!cap.read(src)) {
+			cerr << "ERROR! blank frame grabbed\n";
+			break;
+		}
+	cap >> src;
+/*
 		// record start time
 		auto start = std::chrono::system_clock::now();
 		// check if we succeeded
@@ -293,10 +301,13 @@ int main(int, char**)
 		hsvframe.release();
 		hsvframe_mask.release();
 		contourframe.release();
-
+*/
+		
 		// show live and wait for a key with timeout long enough to show images
 		// imshow("Live", src);
 		// if (waitKey(5) > 0) break;
+		imshow("src", src);
+		cout << "showing smtg" << endl;
 		counter++;
 		if (counter % 5 == 0) counter = 0;
   }
