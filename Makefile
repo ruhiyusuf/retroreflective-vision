@@ -1,6 +1,7 @@
 CXX=g++ 
 RM=rm
-CXXFLAGS=`pkg-config --cflags opencv4`
+CXXFLAGS=`pkg-config --cflags opencv4 `
+LDFLAGS = `-pthread`
 LIBS=`pkg-config --libs opencv4`
 
 SOURCES=$(wildcard *.cpp)
